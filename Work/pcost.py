@@ -1,10 +1,11 @@
 # pcost.py
 #
 # Exercise 1.27
+from pathlib import Path
 
-path = "Data/portfolio.csv"
+path = Path(__file__).parent / "Data/portfolio.csv"
+
 cost = 0
-
 
 with open(path, "rt") as portfolio:
     next(portfolio)
