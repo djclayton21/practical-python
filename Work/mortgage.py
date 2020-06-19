@@ -11,7 +11,7 @@ month = 0
 
 while principal > 0:
     principal_with_interest = principal * (1 + rate / 12)
-    if (principal_with_interest < payment):
+    if principal_with_interest < payment:
         final_payment = principal_with_interest
         principal = 0
         total_paid += final_payment
@@ -22,6 +22,8 @@ while principal > 0:
         principal -= extra_payment
         total_paid += extra_payment
     month += 1
-    print(month, round(total_paid,2), round(principal, 2))
+    result = f"{month:<3}{total_paid:12.2f}{principal:12.2f}"
+    print(result)
 
-print("Total paid", total_paid, month)
+summary = f'Paid ${round(total_paid,2)} total in {round(month/12)} years and {month % 12} months'
+print(summary)
