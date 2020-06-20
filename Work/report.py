@@ -12,10 +12,12 @@ def read_portfolio(filename):
         lines = csv.reader(portfolio_file)
         header = next(lines)
         for entries in lines:
-            name = entries[0]
-            nShares = int(entries[1])
-            sharePrice = float(entries[2])
+            holding = {}
+            holding["name"] = entries[0]
+            holding["nShares"] = int(entries[1])
+            holding["sharePrice"] = float(entries[2])
 
-            portfolio.append((name, nShares, sharePrice))
+            portfolio.append(holding)
+
     return portfolio
 
