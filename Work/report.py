@@ -41,8 +41,9 @@ def read_prices(filename):
     return prices
 
 
-def check_portfolio(portfolio, prices):
-    result = {"portfolio": [], "total_value": 0, "total_p/l": 0}
+def update_portfolio(portfolio, prices):
+
+    result = {"holdings": [], "total_value": 0, "total_p/l": 0}
 
     for stock in portfolio:
         stock["current_price"] = prices[stock["symbol"]]
@@ -51,16 +52,30 @@ def check_portfolio(portfolio, prices):
         stock["value"] = round(stock["value"], 2)
         stock["change"] = round(stock["change"], 2)
 
-        result["portfolio"].append(stock)
+        result["holdings"].append(stock)
         result["total_value"] += stock["value"]
         result["total_p/l"] += stock["n_shares"] * stock["change"]
 
     return result
 
 
+def make_report(portfolio):
+    header = "%10s %10s %10s %10s" % ("Symbol", "Shares", "Price", "Change")
+    print(header)
+    print(len(header) * "-")
+    for stock in portfolio["holdings"]:
+        line = "%10s %10d %10s %10.2f" % (
+            stock["symbol"],
+            stock["n_shares"],
+            f'${stock["current_price"]:0.2f}',
+            stock["change"],
+        )
+        print(line)    
+
+
 my_portfolio = read_portfolio("Data/portfolio.csv")
 current_prices = read_prices("Data/prices.csv")
 
-my_profit = check_portfolio(my_portfolio, current_prices)
+updated_portfolio = update_portfolio(my_portfolio, current_prices)
 
-print("value:", my_profit["total_value"], "change:", my_profit["total_p/l"])
+make_report(updated_portfolio)
