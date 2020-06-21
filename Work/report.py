@@ -3,6 +3,7 @@
 # Exercise 2.4
 
 from pprint import pprint
+import sys
 
 
 def read_portfolio(filename):
@@ -13,13 +14,16 @@ def read_portfolio(filename):
     with open(filename, "rt") as portfolio_file:
         lines = csv.reader(portfolio_file)
         header = next(lines)
-        for entries in lines:
-            holding = {}
-            holding["symbol"] = entries[0]
-            holding["n_shares"] = int(entries[1])
-            holding["purchace_price"] = float(entries[2])
-
-            portfolio.append(holding)
+        for i, line in enumerate(lines):
+            record = dict(zip(header, line))
+            try:
+                holding = {}
+                holding["symbol"] = record["name"]
+                holding["n_shares"] = int(record["shares"])
+                holding["purchace_price"] = float(record["price"])
+                portfolio.append(holding)
+            except ValueError:
+                print(f"Could not process line {i}:", line)
 
     return portfolio
 
@@ -70,11 +74,21 @@ def make_report(portfolio):
             f'${stock["current_price"]:0.2f}',
             stock["change"],
         )
-        print(line)    
+        print(line)
 
 
-my_portfolio = read_portfolio("Data/portfolio.csv")
-current_prices = read_prices("Data/prices.csv")
+if len(sys.argv) == 3:
+    filename = sys.argv[1]
+    prices = sys.argv[2]
+elif len(sys.argv) == 2:
+    filename = sys.argv[1]
+    prices = "Data/prices.csv"
+else:
+    filename = "Data/portfolio.csv"
+    prices = "Data/prices.csv"
+
+my_portfolio = read_portfolio(filename)
+current_prices = read_prices(prices)
 
 updated_portfolio = update_portfolio(my_portfolio, current_prices)
 

@@ -1,18 +1,39 @@
-# pcost.py
-#
-# Exercise 1.27
-from pathlib import Path
+import sys
 
-path = Path(__file__).parent / "Data/portfolio.csv"
 
-cost = 0
+def portfolio_cost(filename):
 
-with open(path, "rt") as portfolio:
-    next(portfolio)
-    for stock in portfolio:
-        deets = stock.split(",")
-        shares = int(deets[1])
-        price = float(deets[2])
-        cost += shares * price
+    from pathlib import Path
+    import csv
 
-print(f"Total cost is ${cost:.2f}")
+    try:
+        path = Path(__file__).parent / filename
+    except NameError:
+        path = filename
+
+    cost = 0
+    with open(path, "rt") as portfolio_file:
+
+        lines = csv.reader(portfolio_file)
+        headers = next(lines)
+        for i, stock in enumerate(lines):
+            record = dict(zip(headers, stock))
+            try:
+                shares = int(record['shares'])
+                price = float(record['price'])
+                cost += shares * price
+            except ValueError:
+                print(f"could not process line {i}:", stock)
+
+    return cost
+
+
+if len(sys.argv) == 2:
+    filename = sys.argv[1]
+else:
+    filename = "Data/portfolio.csv"
+
+cost = portfolio_cost(filename)
+
+print("Total Cost: ", cost)
+
