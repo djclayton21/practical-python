@@ -4,10 +4,10 @@
 
 from pprint import pprint
 import sys
+import csv
 
 
 def read_portfolio(filename):
-    import csv
 
     portfolio = []
 
@@ -20,7 +20,7 @@ def read_portfolio(filename):
                 holding = {}
                 holding["symbol"] = record["name"]
                 holding["n_shares"] = int(record["shares"])
-                holding["purchace_price"] = float(record["price"])
+                holding["purchase_price"] = float(record["price"])
                 portfolio.append(holding)
             except ValueError:
                 print(f"Could not process line {i}:", line)
@@ -29,7 +29,6 @@ def read_portfolio(filename):
 
 
 def read_prices(filename):
-    import csv
 
     prices = {}
 
@@ -51,7 +50,7 @@ def update_portfolio(portfolio, prices):
 
     for stock in portfolio:
         stock["current_price"] = prices[stock["symbol"]]
-        stock["change"] = stock["current_price"] - stock["purchace_price"]
+        stock["change"] = stock["current_price"] - stock["purchase_price"]
         stock["value"] = stock["n_shares"] * stock["current_price"]
         stock["value"] = round(stock["value"], 2)
         stock["change"] = round(stock["change"], 2)
@@ -64,6 +63,10 @@ def update_portfolio(portfolio, prices):
 
 
 def make_report(portfolio):
+    """
+    print a report from a portfolio including keys symbol, n_shares,
+    current_price, and change
+    """
     header = "%10s %10s %10s %10s" % ("Symbol", "Shares", "Price", "Change")
     print(header)
     print(len(header) * "-")
@@ -77,19 +80,18 @@ def make_report(portfolio):
         print(line)
 
 
+def portfolio_report(
+    portfolio_filename="Data/portfolio.csv", prices_filename="Data/prices.csv"
+):
+    "print a report on your portfolio from current prices"
+
+    portfolio = read_portfolio(portfolio_filename)
+    current_prices = read_prices(prices_filename)
+    current_portfolio = update_portfolio(portfolio, current_prices)
+    make_report(current_portfolio)
+
+
 if len(sys.argv) == 3:
-    filename = sys.argv[1]
-    prices = sys.argv[2]
-elif len(sys.argv) == 2:
-    filename = sys.argv[1]
-    prices = "Data/prices.csv"
-else:
-    filename = "Data/portfolio.csv"
-    prices = "Data/prices.csv"
-
-my_portfolio = read_portfolio(filename)
-current_prices = read_prices(prices)
-
-updated_portfolio = update_portfolio(my_portfolio, current_prices)
-
-make_report(updated_portfolio)
+    portfolio_filename = sys.argv[1]
+    prices_filename = sys.argv[2]
+    portfolio_report(portfolio_filename, prices_filename)
