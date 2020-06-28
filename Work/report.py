@@ -57,8 +57,10 @@ def portfolio_report(
     current_portfolio = update_portfolio(portfolio, current_prices)
     make_report(current_portfolio)
 
-
-if len(sys.argv) == 3:
-    portfolio_filename = sys.argv[1]
-    prices_filename = sys.argv[2]
-    portfolio_report(portfolio_filename, prices_filename)
+if __name__ == '__main__':
+    if len(sys.argv) == 3:
+        portfolio_filename = sys.argv[1]
+        prices_filename = sys.argv[2]
+        portfolio_report(portfolio_filename, prices_filename)
+    else:
+        portfolio_report()
