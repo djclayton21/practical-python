@@ -5,27 +5,42 @@
 import csv
 
 
-def parse_csv(filename, select=None, types=None, has_headers=True, delimiter=","):
+def parse_csv(
+    filename,
+    select=None,
+    types=None,
+    has_headers=True,
+    delimiter=",",
+    silence_errors=False,
+):
     """
     Parse a CSV file into a list of records
     """
     with open(filename) as file:
         rows = csv.reader(file, delimiter=delimiter)
         #   read the file headers
+
         if has_headers:
             headers = next(rows)
-            if select:
-                indices = [headers.index(name) for name in select]
-                headers = select
+        if select:
+            if not has_headers:
+                raise RuntimeError("No headers, cannot use select")
+            indices = [headers.index(name) for name in select]
+            headers = select
         # process the rows
         records = []
-        for row in rows:
+        for i, row in enumerate(rows):
             if not row:  # skip rows with no data
                 continue
             if select:
                 row = [row[index] for index in indices]
             if types:
-                row = [type_of(val) for type_of, val in zip(types, row)]
+                try:
+                    row = [type_of(val) for type_of, val in zip(types, row)]
+                except ValueError as err:
+                    if not silence_errors:
+                        print(f"Row {i}: Could not convert {row}")
+                        print(f"Row {i}: {err}")
             if has_headers:
                 record = dict(zip(headers, row))
             else:
