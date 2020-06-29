@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.8
 # report.py
 #
 # Exercise 2.4
@@ -47,17 +48,18 @@ def portfolio_report(
     portfolio_filename="Data/portfolio.csv", prices_filename="Data/prices.csv"
 ):
     "print a report on your portfolio from current prices"
+    with open(portfolio_filename) as file:
+        portfolio = parse_csv(
+            file, select=["name", "shares", "price"], types=[str, int, float]
+        )
+    with open(prices_filename) as prices:
+        current_prices = dict(parse_csv(prices, has_headers=False, types=[str, float]))
 
-    portfolio = parse_csv(
-        portfolio_filename, select=["name", "shares", "price"], types=[str, int, float]
-    )
-    current_prices = dict(
-        parse_csv(prices_filename, has_headers=False, types=[str, float])
-    )
     current_portfolio = update_portfolio(portfolio, current_prices)
     make_report(current_portfolio)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) == 3:
         portfolio_filename = sys.argv[1]
         prices_filename = sys.argv[2]
