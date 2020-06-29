@@ -6,63 +6,50 @@
 from pprint import pprint
 import sys
 from fileparse import parse_csv
+from stock import Stock
+import tableformat
 
 
-def update_portfolio(portfolio, prices):
-
-    result = {"holdings": [], "total_value": 0, "total_p/l": 0}
-
+def print_report(portfolio, prices, formatter):
+    """
+    print a report from a portfolio of Stock objects
+    """
+    formatter.headings(["Name", "Shares", "Price", "Change"])
     for stock in portfolio:
-        stock["current_price"] = prices[stock["name"]]
-        stock["change"] = stock["current_price"] - stock["price"]
-        stock["value"] = stock["shares"] * stock["current_price"]
-        stock["value"] = round(stock["value"], 2)
-        stock["change"] = round(stock["change"], 2)
-
-        result["holdings"].append(stock)
-        result["total_value"] += stock["value"]
-        result["total_p/l"] += stock["shares"] * stock["change"]
-
-    return result
-
-
-def make_report(portfolio):
-    """
-    print a report from a portfolio including keys name, shares,
-    current_price, and change
-    """
-    header = "%10s %10s %10s %10s" % ("name", "Shares", "Price", "Change")
-    print(header)
-    print(len(header) * "-")
-    for stock in portfolio["holdings"]:
-        line = "%10s %10d %10s %10.2f" % (
-            stock["name"],
-            stock["shares"],
-            f'${stock["current_price"]:0.2f}',
-            stock["change"],
-        )
-        print(line)
+        lineData = [
+            stock.name,
+            str(stock.shares),
+            f"${prices[stock.name]:0.2f}",
+            f"{(prices[stock.name] - stock.price):0.2f}",
+        ]
+        formatter.row(lineData)
 
 
 def portfolio_report(
-    portfolio_filename="Data/portfolio.csv", prices_filename="Data/prices.csv"
+    portfolio_filename="Data/portfolio.csv",
+    prices_filename="Data/prices.csv",
+    fmt="text",
 ):
-    "print a report on your portfolio from current prices"
+    "print a report on your portfolio with current prices"
     with open(portfolio_filename) as file:
-        portfolio = parse_csv(
+        portfolio_dicts = parse_csv(
             file, select=["name", "shares", "price"], types=[str, int, float]
         )
-    with open(prices_filename) as prices:
-        current_prices = dict(parse_csv(prices, has_headers=False, types=[str, float]))
+    portfolio = [Stock(s["name"], s["shares"], s["price"]) for s in portfolio_dicts]
 
-    current_portfolio = update_portfolio(portfolio, current_prices)
-    make_report(current_portfolio)
+    with open(prices_filename) as prices:
+        prices = dict(parse_csv(prices, has_headers=False, types=[str, float]))
+    formatter = tableformat.create_formatter(fmt)
+    print_report(portfolio, prices, formatter)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
+    if len(sys.argv) >= 3:
         portfolio_filename = sys.argv[1]
         prices_filename = sys.argv[2]
-        portfolio_report(portfolio_filename, prices_filename)
+        fmt = "text"
+        if sys.argv[3]:
+            fmt = sys.argv[3]
+        portfolio_report(portfolio_filename, prices_filename, fmt)
     else:
         portfolio_report()
