@@ -16,6 +16,10 @@ def follow(filename):
 
 if __name__ == "__main__":
     args = sys.argv
+
+    import report
+    portfolio = report.read_portfolio("Data/portfolio.csv")
+
     if len(args) == 2:
         filename = args[1]
     else:
@@ -26,6 +30,6 @@ if __name__ == "__main__":
         name = fields[0].strip('"')
         price = float(fields[1])
         change = float(fields[4])
-        if change:
+        if name in portfolio:
             print(f"{name:>10s} {price:>10.2f} {change:>10.2f}")
 
