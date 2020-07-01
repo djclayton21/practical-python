@@ -16,13 +16,13 @@ class TextTableFormatter(TableFormatter):
 
     def headings(self, headers):
         for h in headers:
-            print(f"{h:>10s}", end=" ")
+            print(f"{h:>10}", end=" ")
         print()
         print(("-" * 10 + " ") * len(headers))
 
     def row(self, rowdata):
         for d in rowdata:
-            print(f"{d:>10s}", end=" ")
+            print(f"{d:>10}", end=" ")
         print()
 
 
@@ -48,6 +48,11 @@ class HTMLTableFormatter(TableFormatter):
         print(f"<tr>{inner}</tr>")
 
 
+class FormatError(ValueError):
+    'Unsupported format type. Try text (default), html, or csv'
+    pass
+
+
 def create_formatter(name="text"):
     "create a formatter of type name in html, csv, text"
     if name == "text":
@@ -57,5 +62,11 @@ def create_formatter(name="text"):
     elif name == "csv":
         return CSVTableFormatter()
     else:
-        raise ValueError("Invalid Table Format: " + name)
+        raise FormatError("Invalid Table Format: " + name)
+
+
+def print_table(objs, headings, formatter):
+    formatter.headings(headings)
+    for obj in objs:
+        formatter.row([getattr(obj, heading) for heading in headings])
 

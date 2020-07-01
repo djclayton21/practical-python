@@ -25,17 +25,23 @@ def print_report(portfolio, prices, formatter):
         formatter.row(lineData)
 
 
+def read_portfolio(portfolio_filename):
+    with open(portfolio_filename) as file:
+        portfolio_dicts = parse_csv(
+            file, select=["name", "shares", "price"], types=[str, int, float]
+        )
+    portfolio = [Stock(s["name"], s["shares"], s["price"]) for s in portfolio_dicts]
+    return portfolio
+
+
 def portfolio_report(
     portfolio_filename="Data/portfolio.csv",
     prices_filename="Data/prices.csv",
     fmt="text",
 ):
     "print a report on your portfolio with current prices"
-    with open(portfolio_filename) as file:
-        portfolio_dicts = parse_csv(
-            file, select=["name", "shares", "price"], types=[str, int, float]
-        )
-    portfolio = [Stock(s["name"], s["shares"], s["price"]) for s in portfolio_dicts]
+
+    portfolio = read_portfolio(portfolio_filename)
 
     with open(prices_filename) as prices:
         prices = dict(parse_csv(prices, has_headers=False, types=[str, float]))
