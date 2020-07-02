@@ -6,7 +6,7 @@ class TableFormatter:
         "emit the table headings"
         raise NotImplementedError()
 
-    def row(self, rowData):
+    def row(self, rowdata):
         "emit a row of data"
         raise NotImplementedError()
 
@@ -22,7 +22,7 @@ class TextTableFormatter(TableFormatter):
 
     def row(self, rowdata):
         for d in rowdata:
-            print(f"{d:>10}", end=" ")
+            print(f"{rowdata[d]:>10}", end=" ")
         print()
 
 
@@ -33,7 +33,7 @@ class CSVTableFormatter(TableFormatter):
         print(",".join(headers))
 
     def row(self, rowdata):
-        print(",".join(rowdata))
+        print(",".join([str(rowdata[d]) for d in rowdata]))
 
 
 class HTMLTableFormatter(TableFormatter):
@@ -44,12 +44,12 @@ class HTMLTableFormatter(TableFormatter):
         print(f"<tr>{inner}</tr>")
 
     def row(self, rowdata):
-        inner = "".join([f"<td>{d}</td>" for d in rowdata])
+        inner = "".join([f"<td>{rowdata[d]}</td>" for d in rowdata])
         print(f"<tr>{inner}</tr>")
 
 
 class FormatError(ValueError):
-    'Unsupported format type. Try text (default), html, or csv'
+    "Unsupported format type. Try text (default), html, or csv"
     pass
 
 
@@ -68,5 +68,5 @@ def create_formatter(name="text"):
 def print_table(objs, headings, formatter):
     formatter.headings(headings)
     for obj in objs:
-        formatter.row([getattr(obj, heading) for heading in headings])
+        formatter.row([val for val in obj])
 
